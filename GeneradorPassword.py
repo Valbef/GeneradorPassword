@@ -42,6 +42,25 @@ def calculate_possibilities(pattern):
 
     return total
 
+def calculate_estimated_size(pattern, quantity):
+    # Cada contraseña ocupa tantos bytes como caracteres
+    # porque el patrón utiliza exclusivamente ASCII.
+    password_size = len(pattern)
+
+    # Un salto de línea por contraseña (1 byte en Linux).
+    total_bytes = quantity * (password_size + 1)
+
+    size_kb = total_bytes / 1024
+    size_mb = size_kb / 1024
+    size_gb = size_mb / 1024
+
+    print("\n--- ESPACIO ESTIMADO EN DISCO ---")
+    print(f"Contraseñas: {quantity:,}")
+    print(f"Espacio necesario: {size_kb:.2f} KB")
+    print(f"Espacio necesario: {size_mb:.4f} MB")
+    print(f"Espacio necesario: {size_gb:.6f} GB")
+
+    return total_bytes
 
 def generate_password(pattern):
     return ''.join(
@@ -105,8 +124,27 @@ def generate_wordlist(pattern, quantity):
 
     return passwords
 
+def calculate_file_size(passwords):
+    total_bytes = 0
+
+    for password in passwords:
+        total_bytes += len(
+            (password + "\n").encode("utf-8")
+        )
+
+    size_kb = total_bytes / 1024
+    size_mb = size_kb / 1024
+    size_gb = size_mb / 1024
+
+    print("\n--- TAMAÑO ESTIMADO DEL ARCHIVO ---")
+    print(f"Kilobytes: {size_kb:.2f} KB")
+    print(f"Megabytes: {size_mb:.4f} MB")
+    print(f"Gigabytes: {size_gb:.6f} GB")
+
+    return total_bytes
 
 def save_to_file(passwords):
+
     filename = input(
         "\nNombre del archivo TXT: "
     ).strip()
@@ -117,12 +155,27 @@ def save_to_file(passwords):
     if not filename.endswith(".txt"):
         filename += ".txt"
 
+    # Calcular tamaño antes de crear el archivo
+    total_bytes = calculate_file_size(passwords)
+
+    print("\n--- CONFIRMACIÓN ---")
+    print(f"Archivo: {filename}")
+    print(f"Tamaño estimado: {total_bytes:,} bytes")
+
+    confirmation = input(
+        "\n¿Quieres crear el archivo? (S/N): "
+    ).strip().lower()
+
+    if confirmation not in ("s", "si", "sí"):
+        print("\nCreación del archivo cancelada.")
+        return
+
+    # Crear archivo únicamente si el usuario confirma
     with open(filename, "w", encoding="utf-8") as file:
         for password in passwords:
             file.write(password + "\n")
 
-    print(f"\nArchivo guardado: {filename}")
-
+    print(f"\nArchivo guardado correctamente: {filename}")
 
 def main():
     pattern = get_pattern()
@@ -133,11 +186,19 @@ def main():
     print(f"Longitud: {len(pattern)}")
     print(f"Combinaciones posibles: {total:,}")
 
+    # Mostrar cuánto ocuparía generar todas las combinaciones
+    calculate_estimated_size(pattern, total)
+
     quantity = int(
         input(
             "\n¿Cuántas contraseñas únicas quieres generar?: "
         )
     )
+
+    # Mostrar cuánto ocuparía la cantidad seleccionada
+    if quantity > 0 and quantity <= total:
+        calculate_estimated_size(pattern, quantity)
+
 
     passwords = generate_wordlist(
         pattern,
@@ -162,12 +223,16 @@ def main():
 
     if option not in ("1", "2", "3"):
         print("Opción no válida.")
+    return passwords
+
 
 
 def program_menu():
+    last_passwords = None
+
     while True:
         try:
-            main()
+            last_passwords = main()
 
         except ValueError as error:
             print(f"\nError: {error}")
@@ -182,7 +247,8 @@ def program_menu():
         print("         MENÚ PRINCIPAL")
         print("=" * 40)
         print("1. Limpiar terminal y reiniciar")
-        print("2. Salir")
+        print("2. Guardar contraseñas en TXT")
+        print("3. Salir")
         print("=" * 40)
 
         option = input("\nSelecciona una opción: ").strip()
@@ -193,12 +259,17 @@ def program_menu():
             continue
 
         elif option == "2":
+            if last_passwords is not None:
+                save_to_file(sorted(last_passwords))
+            else:
+                print("\nNo hay contraseñas disponibles para guardar.")
+
+        elif option == "3":
             print("\nSaliendo del generador. ¡Hasta pronto!")
             break
 
         else:
             print("\nOpción no válida. Inténtalo de nuevo.")
-
 
 if __name__ == "__main__":
     program_menu()
