@@ -3,6 +3,7 @@ import secrets
 import string
 import time
 import sys
+import os
 
 # Definición de alternancias
 alternances = {
@@ -10,6 +11,10 @@ alternances = {
     'M': string.ascii_uppercase,
     'm': string.ascii_lowercase
 }
+
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def get_pattern():
@@ -106,6 +111,9 @@ def save_to_file(passwords):
         "\nNombre del archivo TXT: "
     ).strip()
 
+    if not filename:
+        filename = "contraseñas.txt"
+
     if not filename.endswith(".txt"):
         filename += ".txt"
 
@@ -117,51 +125,80 @@ def save_to_file(passwords):
 
 
 def main():
-    try:
-        pattern = get_pattern()
+    pattern = get_pattern()
 
-        total = calculate_possibilities(pattern)
+    total = calculate_possibilities(pattern)
 
-        print("\n--- INFORMACIÓN DEL PATRÓN ---")
-        print(f"Longitud: {len(pattern)}")
-        print(f"Combinaciones posibles: {total:,}")
+    print("\n--- INFORMACIÓN DEL PATRÓN ---")
+    print(f"Longitud: {len(pattern)}")
+    print(f"Combinaciones posibles: {total:,}")
 
-        quantity = int(
-            input(
-                "\n¿Cuántas contraseñas únicas quieres generar?: "
-            )
+    quantity = int(
+        input(
+            "\n¿Cuántas contraseñas únicas quieres generar?: "
         )
+    )
 
-        passwords = generate_wordlist(
-            pattern,
-            quantity
-        )
+    passwords = generate_wordlist(
+        pattern,
+        quantity
+    )
 
-        print("\n--- OPCIONES DE RESULTADO ---")
-        print("1. Mostrar en terminal")
-        print("2. Guardar en TXT")
-        print("3. Mostrar y guardar")
+    print("\n--- OPCIONES DE RESULTADO ---")
+    print("1. Mostrar en terminal")
+    print("2. Guardar en TXT")
+    print("3. Mostrar y guardar")
 
-        option = input("\nSelecciona una opción: ")
+    option = input("\nSelecciona una opción: ")
 
-        if option in ("1", "3"):
-            print("\n--- CONTRASEÑAS ---")
+    if option in ("1", "3"):
+        print("\n--- CONTRASEÑAS ---")
 
-            for password in passwords:
-                print(password)
+        for password in sorted(passwords):
+            print(password)
 
-        if option in ("2", "3"):
-            save_to_file(sorted(passwords))
+    if option in ("2", "3"):
+        save_to_file(sorted(passwords))
 
-        if option not in ("1", "2", "3"):
-            print("Opción no válida.")
+    if option not in ("1", "2", "3"):
+        print("Opción no válida.")
 
-    except ValueError as error:
-        print(f"\nError: {error}")
 
-    except OSError as error:
-        print(f"\nError de archivo: {error}")
+def program_menu():
+    while True:
+        try:
+            main()
+
+        except ValueError as error:
+            print(f"\nError: {error}")
+
+        except OSError as error:
+            print(f"\nError de archivo: {error}")
+
+        except KeyboardInterrupt:
+            print("\n\nOperación interrumpida.")
+
+        print("\n" + "=" * 40)
+        print("         MENÚ PRINCIPAL")
+        print("=" * 40)
+        print("1. Limpiar terminal y reiniciar")
+        print("2. Salir")
+        print("=" * 40)
+
+        option = input("\nSelecciona una opción: ").strip()
+
+        if option == "1":
+            clear_terminal()
+            print("Reiniciando generador...\n")
+            continue
+
+        elif option == "2":
+            print("\nSaliendo del generador. ¡Hasta pronto!")
+            break
+
+        else:
+            print("\nOpción no válida. Inténtalo de nuevo.")
 
 
 if __name__ == "__main__":
-    main()
+    program_menu()
