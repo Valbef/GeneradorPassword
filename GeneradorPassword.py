@@ -9,9 +9,16 @@ import os
 alternances = {
     '1': string.digits,
     'M': string.ascii_uppercase,
-    'm': string.ascii_lowercase
+    'm': string.ascii_lowercase,
+    '.': "!¡@#$€%&*+-_=¿?.:,;<>[]/{}ºª"
 }
 
+def show_title():
+    print("============================")
+    print("     GeneradorPasswords")
+    print("----------------------------")
+    print(" By:Valbef         v1.0.0")
+    print("============================")
 
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -20,7 +27,7 @@ def clear_terminal():
 def get_pattern():
     while True:
         pattern = input(
-            "\nIntroduce el patrón (1, M, m): "
+            "\nIntroduce el patrón (1, M, m, .): "
         ).replace("-", "").replace(" ", "")
 
         if not pattern:
@@ -272,4 +279,6 @@ def program_menu():
             print("\nOpción no válida. Inténtalo de nuevo.")
 
 if __name__ == "__main__":
+    clear_terminal()
+    show_title()
     program_menu()
