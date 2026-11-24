@@ -1,4 +1,4 @@
-Herramienta hecha en python para generar contraseñas a partir de patrones de numeros, letras mayusculas y letras minusculas
+Herramienta hecha en python para generar contraseñas a partir de patrones de numeros, simbolos, letras mayusculas y letras minusculas
 
 para crear listas en .txt o para mostrar las contraseñas creadas en la terminal.
 
@@ -9,6 +9,9 @@ tambien permite generar el numero deseado de contraseñas dentro de las posibili
 
 (( ATENCION!! no guardar un archivo mas grande que el espacio disponible en el disco duro))
 
+Uso en Windows:
+
+ Descargar el archivo EXE y ejecutarlo
 
 instalación y uso:
 
@@ -32,6 +35,8 @@ introducir cualquier patron de letras y numeros usando:
   M -para las mayusculas
   
   m -para las minusculas
+  
+  . -para simbolos
 
 ejemplos:
 
