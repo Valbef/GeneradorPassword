@@ -12,12 +12,14 @@ alternances = {
     'm': string.ascii_lowercase,
     '.': "!¡@#$€%&*+-_=¿?.:,;<>[]/{}ºª"
 }
+# ? representa cualquier carácter de las alternancias
+alternances['?'] = ''.join(alternances.values())
 
 def show_title():
     print("============================")
     print("     GeneradorPasswords")
     print("----------------------------")
-    print(" By:Valbef         v1.0.0")
+    print(" By:Valbef         v1.1.0")
     print("============================")
 
 def clear_terminal():
@@ -27,15 +29,42 @@ def clear_terminal():
 def get_pattern():
     while True:
         pattern = input(
-            "\nIntroduce el patrón (1, M, m, .): "
+            "\nIntroduce el patrón (1, M, m, ., ?, (caracter)): "
         ).replace("-", "").replace(" ", "")
 
         if not pattern:
             print("El patrón no puede estar vacío.")
             continue
 
-        if not all(c in alternances for c in pattern):
-            print("Utiliza únicamente 1, M y m.")
+        i = 0
+        valid = True
+
+        while i < len(pattern):
+
+            if pattern[i] == '(':
+                end = pattern.find(')', i)
+
+                if end == -1:
+                    valid = False
+                    break
+
+                fixed = pattern[i + 1:end]
+
+                if len(fixed) != 1:
+                    valid = False
+                    break
+
+                i = end + 1
+
+            elif pattern[i] in alternances:
+                i += 1
+
+            else:
+                valid = False
+                break
+
+        if not valid:
+            print("Patrón inválido. Utiliza 1, M, m, ., ?, o (caracter).")
             continue
 
         return pattern
@@ -43,16 +72,61 @@ def get_pattern():
 
 def calculate_possibilities(pattern):
     total = 1
+    i = 0
 
-    for char in pattern:
-        total *= len(alternances[char])
+    while i < len(pattern):
+
+        if pattern[i] == '(':
+            end = pattern.find(')', i)
+            i = end + 1
+
+        else:
+            total *= len(alternances[pattern[i]])
+            i += 1
 
     return total
 
+def calculate_password_length(pattern):
+    length = 0
+    i = 0
+
+    while i < len(pattern):
+
+        if pattern[i] == '(':
+            end = pattern.find(')', i)
+            length += 1
+            i = end + 1
+
+        else:
+            length += 1
+            i += 1
+
+    return length
+
 def calculate_estimated_size(pattern, quantity):
-    # Cada contraseña ocupa tantos bytes como caracteres
-    # porque el patrón utiliza exclusivamente ASCII.
-    password_size = len(pattern)
+
+    # Calcular el tamaño máximo posible de una contraseña
+    # teniendo en cuenta UTF-8.
+    password_size = 0
+    i = 0
+
+    while i < len(pattern):
+
+        if pattern[i] == '(':
+            end = pattern.find(')', i)
+            fixed = pattern[i + 1:end]
+
+            password_size += len(fixed.encode("utf-8"))
+
+            i = end + 1
+
+        else:
+            password_size += max(
+                len(char.encode("utf-8"))
+                for char in alternances[pattern[i]]
+            )
+
+            i += 1
 
     # Un salto de línea por contraseña (1 byte en Linux).
     total_bytes = quantity * (password_size + 1)
@@ -63,18 +137,35 @@ def calculate_estimated_size(pattern, quantity):
 
     print("\n--- ESPACIO ESTIMADO EN DISCO ---")
     print(f"Contraseñas: {quantity:,}")
-    print(f"Espacio necesario: {size_kb:.2f} KB")
-    print(f"Espacio necesario: {size_mb:.4f} MB")
-    print(f"Espacio necesario: {size_gb:.6f} GB")
+    print(f"Espacio máximo estimado: {size_kb:.2f} KB")
+    print(f"Espacio máximo estimado: {size_mb:.4f} MB")
+    print(f"Espacio máximo estimado: {size_gb:.6f} GB")
 
     return total_bytes
 
 def generate_password(pattern):
-    return ''.join(
-        secrets.choice(alternances[char])
-        for char in pattern
-    )
+    password = []
+    i = 0
 
+    while i < len(pattern):
+
+        if pattern[i] == '(':
+            end = pattern.find(')', i)
+
+            fixed = pattern[i + 1:end]
+
+            password.append(fixed)
+
+            i = end + 1
+
+        else:
+            password.append(
+                secrets.choice(alternances[pattern[i]])
+            )
+
+            i += 1
+
+    return ''.join(password)
 
 def show_progress(current, total, start_time):
     percentage = current / total * 100
@@ -190,7 +281,7 @@ def main():
     total = calculate_possibilities(pattern)
 
     print("\n--- INFORMACIÓN DEL PATRÓN ---")
-    print(f"Longitud: {len(pattern)}")
+    print(f"Longitud: {calculate_password_length(pattern)}")
     print(f"Combinaciones posibles: {total:,}")
 
     # Mostrar cuánto ocuparía generar todas las combinaciones
