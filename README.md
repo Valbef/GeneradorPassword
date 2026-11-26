@@ -2,6 +2,8 @@ Herramienta hecha en python para generar contraseñas a partir de patrones de nu
 
 para crear listas en .txt o para mostrar las contraseñas creadas en la terminal.
 
+(Tambien se pueden definir caracteres fijos poniendolos entre parentesis caracter por caracter)
+
 Muestra el espacio estimado que ocupará  en el disco mduro antes de guardar el archivo,
 
 tambien permite generar el numero deseado de contraseñas dentro de las posibilidades que tenga el patron.
@@ -38,6 +40,10 @@ introducir cualquier patron de letras y numeros usando:
   
   . -para simbolos
 
+  ? -cualquier caracter aleatorio (numeros, letras mayusculas o minusculas y simbolos)
+
+  () -poner un caracter fijo entre los parentesis
+
 ejemplos:
 
  
@@ -46,3 +52,7 @@ ejemplos:
  M1m1mm1M
  
  1Mm1Mm1Mm1Mm
+
+ 1M(y)(o)m1m
+ 
+ 1m??1m11M?
